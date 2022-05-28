@@ -17,7 +17,6 @@ import datetime # Imports functionality that lets you make timestamps
 import subprocess  # Imports functionality that let's you run command line commands in a script
 import requests # Imports the ability to make web or api requests
 import re # Imports regex
-import config # imports the config file where you set your API key, directories, etc
 
 
 #  Set your directories here
@@ -106,7 +105,7 @@ def download_cover(directory):
                 # check to see if there is an album that exists and works
                 if album_cover != None:
                     print ("--The album cover was located.")            
-                    #print("--The album is at " + album_url)
+                    print("--The album cover is at " + album_cover)
                 
                     count +=1 # variable will increment every loop iteration
 
