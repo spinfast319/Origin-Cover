@@ -106,21 +106,42 @@ def download_cover(directory):
                 if album_cover != None:
                     print ("--The album cover was located.")            
                     print("--The album cover is at: " + album_cover)
-                    cover_format = album_cover.split(".")
-                    cover_format = cover_format[-1]
-                    print("--The cover is a " + cover_format)
-                
-                    # downloads cover as REDcover
-                    redcover = requests.get(album_cover)
-                    file = open(directory + os.sep + "REDcover." + cover_format, "wb")
-                    file.write(redcover.content)
-                    file.close()                    
-                    print("--Cover downloaded and saved as REDcover." + cover_format)
                     
-                    # rename REDcover to cover if there is no cover.jpg
+                    # Open the url image, set stream to True, this will return the stream content.
+                    image_exists = requests.get(album_cover, stream = True)
                     
-                
-                    count +=1 # variable will increment every loop iteration
+                    #check to see if image exists
+                    if image_exists.status_code == 200:
+                    
+                        cover_format = album_cover.split(".")
+                        cover_format = cover_format[-1]
+                        print("--The cover is a " + cover_format)
+                    
+                        # downloads cover as REDcover
+                        redcover = requests.get(album_cover)
+                        redcover_path = directory + os.sep + "REDcover." + cover_format
+                      
+                        #check to see if REDcover already exists
+                        redcover_exists = os.path.exists(redcover_path)
+                        if redcover_exists == True:
+                            print("--There is already an image name REDcover.")
+                        else:
+                            file = open(redcover_path, "wb")
+                            file.write(redcover.content)
+                            file.close()                    
+                            print("--Cover downloaded and saved as REDcover." + cover_format)
+                            
+                            # rename REDcover to cover if there is no cover file already
+                            cover_exists_path = directory + os.sep + "cover." + cover_format
+                            cover_exists = os.path.exists(cover_exists_path)
+                            if cover_exists == True:
+                                print("--There is already a cover file.")
+                            else:
+                                os.rename(redcover_path, cover_exists_path)  
+                                print("REDcover renamed to cover")
+                            count +=1 # variable will increment every loop iteration
+                    else:
+                        print('Cover is no longer on the internet.')        
 
                 else:
                     print("--The is origin file is missing a cover for the album.")
