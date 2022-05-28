@@ -105,7 +105,20 @@ def download_cover(directory):
                 # check to see if there is an album that exists and works
                 if album_cover != None:
                     print ("--The album cover was located.")            
-                    print("--The album cover is at " + album_cover)
+                    print("--The album cover is at: " + album_cover)
+                    cover_format = album_cover.split(".")
+                    cover_format = cover_format[-1]
+                    print("--The cover is a " + cover_format)
+                
+                    # downloads cover as REDcover
+                    redcover = requests.get(album_cover)
+                    file = open(directory + os.sep + "REDcover." + cover_format, "wb")
+                    file.write(redcover.content)
+                    file.close()                    
+                    print("--Cover downloaded and saved as REDcover." + cover_format)
+                    
+                    # rename REDcover to cover if there is no cover.jpg
+                    
                 
                     count +=1 # variable will increment every loop iteration
 
