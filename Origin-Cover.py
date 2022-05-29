@@ -22,7 +22,7 @@ from time import sleep # Imports functionality that lets you pause your script f
 
 
 #  Set your directories here
-album_directory = "M:\Python Test Environment\Test Albums" # Which directory do you want to start with?
+album_directory = "M:\PREP" # Which directory do you want to start with?
 log_directory = "M:\Python Test Environment\Logs" # Which directory do you want the log in?
 
 # Set whether you are using nested folders or have all albums in one directory here
@@ -105,7 +105,7 @@ def download_cover(directory):
 
                 #check to see if the origin file has the corect metadata
                 if 'Cover' in data.keys():
-                    print("You are using the correct version of gazelle-origin.")
+                    print("--You are using the correct version of gazelle-origin.")
                     
                     album_cover = data['Cover']
                     clean_directory = data['Directory']
@@ -124,7 +124,7 @@ def download_cover(directory):
                         
                             cover_format = album_cover.split(".")
                             cover_format = cover_format[-1]
-                            print("--The cover is a " + cover_format)
+                            print("--The cover is a " + cover_format + ".")
                         
                             # downloads cover as REDcover
                             redcover = requests.get(album_cover)
@@ -147,7 +147,7 @@ def download_cover(directory):
                                     print("--There is already a cover file.")
                                 else:
                                     os.rename(redcover_path, cover_exists_path)  
-                                    print("REDcover renamed to cover")
+                                    print("--REDcover renamed to cover.")
                                 count +=1 # variable will increment every loop iteration
                         else:
                             print('--Cover is no longer on the internet.')
