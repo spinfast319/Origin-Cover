@@ -17,10 +17,12 @@ import datetime # Imports functionality that lets you make timestamps
 import subprocess  # Imports functionality that let's you run command line commands in a script
 import requests # Imports the ability to make web or api requests
 import re # Imports regex
+from random import randint # Imports functionality that lets you generate a random number
+from time import sleep # Imports functionality that lets you pause your script for a set period of time
 
 
 #  Set your directories here
-album_directory = "M:\Python Test Environment\Albums" # Which directory do you want to start with?
+album_directory = "M:\Python Test Environment\Test Albums" # Which directory do you want to start with?
 log_directory = "M:\Python Test Environment\Logs" # Which directory do you want the log in?
 
 # Set whether you are using nested folders or have all albums in one directory here
@@ -35,8 +37,9 @@ count = 0
 good_missing = 0
 bad_missing = 0
 bad_folder_name = 0
-album_missing = 0
+cover_missing = 0
 link_missing = 0
+origin_old = 0
 error_message = 0
 
 # identifies location origin files are supposed to be
@@ -72,8 +75,9 @@ def download_cover(directory):
         global good_missing
         global bad_missing
         global bad_folder_name
-        global album_missing
+        global cover_missing
         global link_missing
+        global origin_old
         global origin_location
         print ("\n")
         #check to see if folder has bad characters and skip if it does
@@ -98,59 +102,80 @@ def download_cover(directory):
                 #open the yaml and turn the data into variables
                 with open(directory + os.sep + 'origin.yaml',encoding='utf-8') as f:
                   data = yaml.load(f, Loader=yaml.FullLoader)
-                album_cover = data['Cover']
-                clean_directory = data['Directory']
-                f.close()
-                                             
-                # check to see if there is an album that exists and works
-                if album_cover != None:
-                    print ("--The album cover was located.")            
-                    print("--The album cover is at: " + album_cover)
-                    
-                    # Open the url image, set stream to True, this will return the stream content.
-                    image_exists = requests.get(album_cover, stream = True)
-                    
-                    #check to see if image exists
-                    if image_exists.status_code == 200:
-                    
-                        cover_format = album_cover.split(".")
-                        cover_format = cover_format[-1]
-                        print("--The cover is a " + cover_format)
-                    
-                        # downloads cover as REDcover
-                        redcover = requests.get(album_cover)
-                        redcover_path = directory + os.sep + "REDcover." + cover_format
-                      
-                        #check to see if REDcover already exists
-                        redcover_exists = os.path.exists(redcover_path)
-                        if redcover_exists == True:
-                            print("--There is already an image name REDcover.")
-                        else:
-                            file = open(redcover_path, "wb")
-                            file.write(redcover.content)
-                            file.close()                    
-                            print("--Cover downloaded and saved as REDcover." + cover_format)
-                            
-                            # rename REDcover to cover if there is no cover file already
-                            cover_exists_path = directory + os.sep + "cover." + cover_format
-                            cover_exists = os.path.exists(cover_exists_path)
-                            if cover_exists == True:
-                                print("--There is already a cover file.")
-                            else:
-                                os.rename(redcover_path, cover_exists_path)  
-                                print("REDcover renamed to cover")
-                            count +=1 # variable will increment every loop iteration
-                    else:
-                        print('Cover is no longer on the internet.')        
 
-                else:
-                    print("--The is origin file is missing a cover for the album.")
-                    print("--Logged missing link.")
-                    log_name = "no-link"
-                    log_message = "origin file is missing a link to the album"
-                    log_outcomes(directory,log_name,log_message)
-                    link_missing +=1 # variable will increment every loop iteration
+                #check to see if the origin file has the corect metadata
+                if 'Cover' in data.keys():
+                    print("You are using the correct version of gazelle-origin.")
                     
+                    album_cover = data['Cover']
+                    clean_directory = data['Directory']
+                    f.close()
+                    
+                    # check to see if there is an album that exists and works
+                    if album_cover != None:
+                        print ("--The album cover was located.")            
+                        print("--The album cover is at: " + album_cover)
+                        
+                        # Open the url image, set stream to True, this will return the stream content.
+                        image_exists = requests.get(album_cover, stream = True)
+                        
+                        #check to see if image exists
+                        if image_exists.status_code == 200:
+                        
+                            cover_format = album_cover.split(".")
+                            cover_format = cover_format[-1]
+                            print("--The cover is a " + cover_format)
+                        
+                            # downloads cover as REDcover
+                            redcover = requests.get(album_cover)
+                            redcover_path = directory + os.sep + "REDcover." + cover_format
+                          
+                            #check to see if REDcover already exists
+                            redcover_exists = os.path.exists(redcover_path)
+                            if redcover_exists == True:
+                                print("--There is already an image name REDcover.")
+                            else:
+                                file = open(redcover_path, "wb")
+                                file.write(redcover.content)
+                                file.close()                    
+                                print("--Cover downloaded and saved as REDcover." + cover_format)
+                                
+                                # rename REDcover to cover if there is no cover file already
+                                cover_exists_path = directory + os.sep + "cover." + cover_format
+                                cover_exists = os.path.exists(cover_exists_path)
+                                if cover_exists == True:
+                                    print("--There is already a cover file.")
+                                else:
+                                    os.rename(redcover_path, cover_exists_path)  
+                                    print("REDcover renamed to cover")
+                                count +=1 # variable will increment every loop iteration
+                        else:
+                            print('--Cover is no longer on the internet.')
+                            print("--Logged missing cover.")
+                            log_name = "cover_missing"
+                            log_message = "cover is no longer on the internet"
+                            log_outcomes(directory,log_name,log_message)
+                            cover_missing +=1 # variable will increment every loop iteration
+                            
+                    else:
+                        print("--The is origin file is missing a cover link for the album.")
+                        print("--Logged missing link.")
+                        log_name = "no-link"
+                        log_message = "origin file is missing a cover link to the album"
+                        log_outcomes(directory,log_name,log_message)
+                        link_missing +=1 # variable will increment every loop iteration
+                    
+                else:
+                    print("--You need to update your origin files with more metadata.")
+                    print("--Switch to the gazelle-origin fork here: https://github.com/spinfast319/gazelle-origin")
+                    print("--Then run: https://github.com/spinfast319/Update-Gazelle-Origin-Files") 
+                    print("--Then try this script again.")
+                    print("--Logged out of date origin file.")
+                    log_name = "out-of-date-origin"
+                    log_message = "origin file out of date"
+                    log_outcomes(directory,log_name,log_message)
+                    origin_old +=1 # variable will increment every loop iteration
+                
             #otherwise log that the origin file is missing
             else:
                 #split the directory to make sure that it distinguishes between folders that should and shouldn't have origin files
@@ -182,6 +207,9 @@ directories.remove(os.path.abspath(album_directory)) # If you don't want your ma
 for i in directories:
       os.chdir(i)         # Change working Directory
       download_cover(i)      # Run your function
+      delay = randint(1,5)  # Generate a random number of seconds
+      print("The script is pausing for " + str(delay) + " seconds.")
+      sleep(delay) # Delay the script randomly to reduce anti-web scraping blocks 
 
 # Summary text
 print("")
@@ -192,16 +220,21 @@ if bad_folder_name >= 1:
     error_message +=1 # variable will increment if statement is true
 elif bad_folder_name == 0:    
     print("--Info: There were " + str(bad_folder_name) + " folders with illegal characters.")
-if album_missing >= 1:
-    print("--Warning: There were " + str(album_missing) + " albums no longer on the site.")
+if cover_missing >= 1:
+    print("--Warning: There were " + str(cover_missing) + " covers no longer on the internet.")
     error_message +=1 # variable will increment if statement is true
-elif album_missing == 0:    
-    print("--Info: There were " + str(album_missing) + " albums no longer on the site.")
+elif cover_missing == 0:    
+    print("--Info: There were " + str(cover_missing) + " covers no longer on the internet.")
 if link_missing >= 1:
-    print("--Warning: There were " + str(link_missing) + " origin files with a missing link to the album.")
+    print("--Warning: There were " + str(link_missing) + " origin file missing a cover link to the album.")
     error_message +=1 # variable will increment if statement is true
 elif link_missing == 0:    
-    print("--Info: There were " + str(link_missing) + " origin files with a missing link to the album.")
+    print("--Info: There were " + str(link_missing) + " origin file missing a cover link to the album.")
+if origin_old >= 1:
+    print("--Warning: There were " + str(origin_old) + " origin files that do not have the needed metadata and need to be updated.")
+    error_message +=1 # variable will increment if statement is true
+elif origin_old == 0:    
+    print("--Info: There were " + str(origin_old) + " origin files that do not have the needed metadata and need to be updated.")
 if bad_missing >= 1:
     print("--Warning: There were " + str(bad_missing) + " folders missing an origin files that should have had them.")
     error_message +=1 # variable will increment if statement is true
