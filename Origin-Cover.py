@@ -22,7 +22,7 @@ from time import sleep # Imports functionality that lets you pause your script f
 
 
 #  Set your directories here
-album_directory = "M:\PREP" # Which directory do you want to start with?
+album_directory = "M:\PROBLEM ALBUMS SITE" # Which directory do you want to start with?
 log_directory = "M:\Python Test Environment\Logs" # Which directory do you want the log in?
 
 # Set whether you are using nested folders or have all albums in one directory here
@@ -68,6 +68,16 @@ def log_outcomes(d,p,m):
         log_name.write("Album location: " + directory + "\n")
         log_name.write(" \n")  
         log_name.close()
+
+# A function to check if a website exists
+def site_check(url):
+    try:
+        request = requests.get(url) #Here is where im getting the error
+        if request.status_code == 200:
+            return "site_exists"
+    except:
+        return "no_site"
+
 
 #  A function that gets the url of the cover and downloads the cover into the same folder as the origin file
 def download_cover(directory):
@@ -116,46 +126,56 @@ def download_cover(directory):
                         print ("--The album cover was located.")            
                         print("--The album cover is at: " + album_cover)
                         
-                        # Open the url image, set stream to True, this will return the stream content.
-                        image_exists = requests.get(album_cover, stream = True)
-                        
-                        #check to see if image exists
-                        if image_exists.status_code == 200:
-                        
-                            cover_format = album_cover.split(".")
-                            cover_format = cover_format[-1]
-                            print("--The cover is a " + cover_format + ".")
-                        
-                            # downloads cover as REDcover
-                            redcover = requests.get(album_cover)
-                            redcover_path = directory + os.sep + "REDcover." + cover_format
-                          
-                            #check to see if REDcover already exists
-                            redcover_exists = os.path.exists(redcover_path)
-                            if redcover_exists == True:
-                                print("--There is already an image name REDcover.")
-                            else:
-                                file = open(redcover_path, "wb")
-                                file.write(redcover.content)
-                                file.close()                    
-                                print("--Cover downloaded and saved as REDcover." + cover_format)
+                        # Checks to see if the site where the image is hosted is still there
+                        site_exists = site_check(album_cover)
+                        if site_exists == "no_site":
+                                print('--Cover is no longer on the internet.')
+                                print("--Logged missing cover.")
+                                log_name = "cover_missing"
+                                log_message = "cover is no longer on the internet"
+                                log_outcomes(directory,log_name,log_message)
+                                cover_missing +=1 # variable will increment every loop iteration
                                 
-                                # rename REDcover to cover if there is no cover file already
-                                cover_exists_path = directory + os.sep + "cover." + cover_format
-                                cover_exists = os.path.exists(cover_exists_path)
-                                if cover_exists == True:
-                                    print("--There is already a cover file.")
+                        else:    
+                            #check to see if image still exsits on the site
+                            image_exists = requests.head(album_cover)
+                            if image_exists.status_code != 200:
+                            
+                                print('--Cover is no longer on the internet.')
+                                print("--Logged missing cover.")
+                                log_name = "cover_missing"
+                                log_message = "cover is no longer on the internet"
+                                log_outcomes(directory,log_name,log_message)
+                                cover_missing +=1 # variable will increment every loop iteration
+                                
+                            else:
+                                cover_format = album_cover.split(".")
+                                cover_format = cover_format[-1]
+                                print("--The cover is a " + cover_format + ".")
+                            
+                                # downloads cover as REDcover
+                                redcover = requests.get(album_cover)
+                                redcover_path = directory + os.sep + "REDcover." + cover_format
+                              
+                                #check to see if REDcover already exists
+                                redcover_exists = os.path.exists(redcover_path)
+                                if redcover_exists == True:
+                                    print("--There is already an image name REDcover.")
                                 else:
-                                    os.rename(redcover_path, cover_exists_path)  
-                                    print("--REDcover renamed to cover.")
-                                count +=1 # variable will increment every loop iteration
-                        else:
-                            print('--Cover is no longer on the internet.')
-                            print("--Logged missing cover.")
-                            log_name = "cover_missing"
-                            log_message = "cover is no longer on the internet"
-                            log_outcomes(directory,log_name,log_message)
-                            cover_missing +=1 # variable will increment every loop iteration
+                                    file = open(redcover_path, "wb")
+                                    file.write(redcover.content)
+                                    file.close()                    
+                                    print("--Cover downloaded and saved as REDcover." + cover_format)
+                                    
+                                    # rename REDcover to cover if there is no cover file already
+                                    cover_exists_path = directory + os.sep + "cover." + cover_format
+                                    cover_exists = os.path.exists(cover_exists_path)
+                                    if cover_exists == True:
+                                        print("--There is already a cover file.")
+                                    else:
+                                        os.rename(redcover_path, cover_exists_path)  
+                                        print("--REDcover renamed to cover.")
+                                    count +=1 # variable will increment every loop iteration
                             
                     else:
                         print("--The is origin file is missing a cover link for the album.")
@@ -207,7 +227,7 @@ directories.remove(os.path.abspath(album_directory)) # If you don't want your ma
 for i in directories:
       os.chdir(i)         # Change working Directory
       download_cover(i)      # Run your function
-      delay = randint(1,5)  # Generate a random number of seconds
+      delay = randint(1,3)  # Generate a random number of seconds
       print("The script is pausing for " + str(delay) + " seconds.")
       sleep(delay) # Delay the script randomly to reduce anti-web scraping blocks 
 
