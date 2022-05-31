@@ -22,7 +22,7 @@ from time import sleep # Imports functionality that lets you pause your script f
 
 
 #  Set your directories here
-album_directory = "M:\PROBLEM ALBUMS SITE" # Which directory do you want to start with?
+album_directory = "M:\PREP" # Which directory do you want to start with?
 log_directory = "M:\Python Test Environment\Logs" # Which directory do you want the log in?
 
 # Set whether you are using nested folders or have all albums in one directory here
@@ -78,6 +78,13 @@ def site_check(url):
     except:
         return "no_site"
 
+# A function to get the final url if a url is redirected
+def final_destination(url):
+    response = requests.get(url)
+    if response.history:
+        return response.url
+    else:
+        return "No redirect"
 
 #  A function that gets the url of the cover and downloads the cover into the same folder as the origin file
 def download_cover(directory):
@@ -130,52 +137,90 @@ def download_cover(directory):
                         site_exists = site_check(album_cover)
                         if site_exists == "no_site":
                                 print('--Cover is no longer on the internet.')
-                                print("--Logged missing cover.")
+                                print("--Logged missing cover, site no longer exists.")
                                 log_name = "cover_missing"
                                 log_message = "cover is no longer on the internet"
                                 log_outcomes(directory,log_name,log_message)
                                 cover_missing +=1 # variable will increment every loop iteration
                                 
                         else:    
-                            #check to see if image still exsits on the site
-                            image_exists = requests.head(album_cover)
-                            if image_exists.status_code != 200:
-                            
+                            #check to see if image still exsits on the site allowing imagur to have a 301 but others not
+                            #break the url apart to see if it is an imgur link
+                            imgur_id = album_cover.split(".")
+                            imgur_id1 = imgur_id[1]
+                            imgur_id2 = imgur_id[0]
+                            if imgur_id1 == "imgur" or imgur_id2 == "http://imgur":
+                                imgur_id = "imgur"
+                            image_exists_head = requests.head(album_cover)
+                            if image_exists_head.status_code == 301 and imgur_id != "imgur":
                                 print('--Cover is no longer on the internet.')
-                                print("--Logged missing cover.")
+                                print("--Logged missing cover, image is not on site.")
                                 log_name = "cover_missing"
                                 log_message = "cover is no longer on the internet"
                                 log_outcomes(directory,log_name,log_message)
                                 cover_missing +=1 # variable will increment every loop iteration
                                 
                             else:
-                                cover_format = album_cover.split(".")
-                                cover_format = cover_format[-1]
-                                print("--The cover is a " + cover_format + ".")
-                            
-                                # downloads cover as REDcover
-                                redcover = requests.get(album_cover)
-                                redcover_path = directory + os.sep + "REDcover." + cover_format
-                              
-                                #check to see if REDcover already exists
-                                redcover_exists = os.path.exists(redcover_path)
-                                if redcover_exists == True:
-                                    print("--There is already an image name REDcover.")
-                                else:
-                                    file = open(redcover_path, "wb")
-                                    file.write(redcover.content)
-                                    file.close()                    
-                                    print("--Cover downloaded and saved as REDcover." + cover_format)
+                                #check to see if link redirects to imgur 404 image
+                                final_destination_url = final_destination(album_cover)
+                                if final_destination_url == "https://i.imgur.com/removed.png":
+                                    print('--Cover is no longer on the internet.')
+                                    print("--Logged missing cover, image is not on site.")
+                                    log_name = "cover_missing"
+                                    log_message = "cover is no longer on the internet"
+                                    log_outcomes(directory,log_name,log_message)
+                                    cover_missing +=1 # variable will increment every loop iteration
                                     
-                                    # rename REDcover to cover if there is no cover file already
-                                    cover_exists_path = directory + os.sep + "cover." + cover_format
-                                    cover_exists = os.path.exists(cover_exists_path)
-                                    if cover_exists == True:
-                                        print("--There is already a cover file.")
+                                else:
+                                    # check to see if the image exists
+                                    image_exists_stream = requests.get(album_cover, stream = True)
+                                    if image_exists_stream.status_code != 200:
+                                    
+                                        print('--Cover is no longer on the internet.')
+                                        print("--Logged missing cover, image is not on site.")
+                                        log_name = "cover_missing"
+                                        log_message = "cover is no longer on the internet"
+                                        log_outcomes(directory,log_name,log_message)
+                                        cover_missing +=1 # variable will increment every loop iteration
+                                        
                                     else:
-                                        os.rename(redcover_path, cover_exists_path)  
-                                        print("--REDcover renamed to cover.")
-                                    count +=1 # variable will increment every loop iteration
+                                        cover_format = album_cover.split(".")
+                                        cover_format = cover_format[-1]
+                                        #check to make sure the url ends in an image format
+                                        if cover_format == "jpg" or cover_format == "jpeg" or cover_format == "png" or cover_format == "gif" or cover_format == "webp"  or cover_format == "JPG"  or cover_format == "JPEG":
+                                            print("--The cover is a " + cover_format + ".")
+                                        
+                                            # downloads cover as REDcover
+                                            redcover = requests.get(album_cover)
+                                            redcover_path = directory + os.sep + "REDcover." + cover_format
+                                          
+                                            #check to see if REDcover already exists
+                                            redcover_exists = os.path.exists(redcover_path)
+                                            if redcover_exists == True:
+                                                print("--There is already an image name REDcover.")
+                                            else:
+                                                file = open(redcover_path, "wb")
+                                                file.write(redcover.content)
+                                                file.close()                    
+                                                print("--Cover downloaded and saved as REDcover." + cover_format)
+                                                
+                                                # rename REDcover to cover if there is no cover file already
+                                                cover_exists_path = directory + os.sep + "cover." + cover_format
+                                                cover_exists = os.path.exists(cover_exists_path)
+                                                if cover_exists == True:
+                                                    print("--There is already a cover file.")
+                                                else:
+                                                    os.rename(redcover_path, cover_exists_path)  
+                                                    print("--REDcover renamed to cover.")
+                                                count +=1 # variable will increment every loop iteration
+                                            
+                                        else:    
+                                            print('--Cover is no longer on the internet.')
+                                            print("--Logged missing cover, image is not on site.")
+                                            log_name = "cover_missing"
+                                            log_message = "cover is no longer on the internet"
+                                            log_outcomes(directory,log_name,log_message)
+                                            cover_missing +=1 # variable will increment every loop iteration
                             
                     else:
                         print("--The is origin file is missing a cover link for the album.")
