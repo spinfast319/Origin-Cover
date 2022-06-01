@@ -41,6 +41,7 @@ cover_missing = 0
 link_missing = 0
 origin_old = 0
 error_message = 0
+parse_error = 0
 
 # identifies location origin files are supposed to be
 path_segments = album_directory.split(os.sep)
@@ -86,6 +87,60 @@ def final_destination(url):
     else:
         return "No redirect"
 
+# A function to generate summary text that is printed when the script is done
+def summary_text():
+    global count
+    global good_missing
+    global bad_missing
+    global bad_folder_name
+    global cover_missing
+    global link_missing
+    global origin_old
+    global error_message
+    global parse_error
+    print("")
+    print("...and beyond!")
+    print("")
+    print("This script downloaded " + str(count) + " album covers.")
+    print("This script looks for potential missing files or errors. The following messages outline whether any were found.")
+    if parse_error >= 1:
+        print("--Warning: There were " + str(parse_error) + " errors parsing the yaml and the cover art could not be downloaded.")
+        error_message +=1 # variable will increment if statement is true
+    if bad_folder_name >= 1:
+        print("--Warning: There were " + str(bad_folder_name) + " folders with illegal characters.")
+        error_message +=1 # variable will increment if statement is true
+    elif bad_folder_name == 0:    
+        print("--Info: There were " + str(bad_folder_name) + " folders with illegal characters.")
+    if cover_missing >= 1:
+        print("--Warning: There were " + str(cover_missing) + " covers no longer on the internet.")
+        error_message +=1 # variable will increment if statement is true
+    elif cover_missing == 0:    
+        print("--Info: There were " + str(cover_missing) + " covers no longer on the internet.")
+    if link_missing >= 1:
+        print("--Warning: There were " + str(link_missing) + " origin file missing a cover link to the album.")
+        error_message +=1 # variable will increment if statement is true
+    elif link_missing == 0:    
+        print("--Info: There were " + str(link_missing) + " origin file missing a cover link to the album.")
+    if origin_old >= 1:
+        print("--Warning: There were " + str(origin_old) + " origin files that do not have the needed metadata and need to be updated.")
+        error_message +=1 # variable will increment if statement is true
+    elif origin_old == 0:    
+        print("--Info: There were " + str(origin_old) + " origin files that do not have the needed metadata and need to be updated.")
+    if bad_missing >= 1:
+        print("--Warning: There were " + str(bad_missing) + " folders missing an origin files that should have had them.")
+        error_message +=1 # variable will increment if statement is true
+    elif bad_missing == 0:    
+        print("--Info: There were " + str(bad_missing) + " folders missing an origin files that should have had them.")
+    if good_missing >= 1:
+        print("--Info: Some folders didn't have origin files and probably shouldn't have origin files. " + str(good_missing) + " of these folders were identified.")
+        error_message +=1 # variable will increment if statement is true
+    elif good_missing == 0:    
+        print("--Info: Some folders didn't have origin files and probably shouldn't have origin files. " + str(good_missing) + " of these folders were identified.")
+    if error_message >= 1:
+        print("There were " + str(error_message) + " errors. Check the logs to see which folders had errors and what they were.")
+    else:
+        print("There were no errors.")    
+
 #  A function that gets the url of the cover and downloads the cover into the same folder as the origin file
 def download_cover(directory):
         global count
@@ -96,6 +151,7 @@ def download_cover(directory):
         global link_missing
         global origin_old
         global origin_location
+        global parse_error
         print ("\n")
         #check to see if folder has bad characters and skip if it does
         #get album name from directory
@@ -117,9 +173,17 @@ def download_cover(directory):
             #if origin file exists, load it, get url,  download and save cover
             if file_exists == True:
                 #open the yaml and turn the data into variables
-                with open(directory + os.sep + 'origin.yaml',encoding='utf-8') as f:
-                  data = yaml.load(f, Loader=yaml.FullLoader)
-
+                try:
+                    with open(directory + os.sep + 'origin.yaml',encoding='utf-8') as f:
+                      data = yaml.load(f, Loader=yaml.FullLoader)
+                except:
+                    print("--There was an issue parsing the yaml file and the cover could not be downloaded.")
+                    print("----Logged missing cover due to parse error. Redownload origin file.")
+                    log_name = "parse-error"
+                    log_message = "had an error parsing the yaml and the cover art could not be downloaded. Redownload the origin file"
+                    log_outcomes(directory,log_name,log_message)
+                    parse_error +=1 # variable will increment every loop iteration
+                    return
                 #check to see if the origin file has the corect metadata
                 if 'Cover' in data.keys():
                     print("--You are using the correct version of gazelle-origin.")
@@ -276,42 +340,5 @@ for i in directories:
       print("The script is pausing for " + str(delay) + " seconds.")
       sleep(delay) # Delay the script randomly to reduce anti-web scraping blocks 
 
-# Summary text
-print("")
-print("...and beyond! This script downloaded " + str(count) + " album covers.")
-print("This script looks for potential missing files or errors. The following messages outline whether any were found.")
-if bad_folder_name >= 1:
-    print("--Warning: There were " + str(bad_folder_name) + " folders with illegal characters.")
-    error_message +=1 # variable will increment if statement is true
-elif bad_folder_name == 0:    
-    print("--Info: There were " + str(bad_folder_name) + " folders with illegal characters.")
-if cover_missing >= 1:
-    print("--Warning: There were " + str(cover_missing) + " covers no longer on the internet.")
-    error_message +=1 # variable will increment if statement is true
-elif cover_missing == 0:    
-    print("--Info: There were " + str(cover_missing) + " covers no longer on the internet.")
-if link_missing >= 1:
-    print("--Warning: There were " + str(link_missing) + " origin file missing a cover link to the album.")
-    error_message +=1 # variable will increment if statement is true
-elif link_missing == 0:    
-    print("--Info: There were " + str(link_missing) + " origin file missing a cover link to the album.")
-if origin_old >= 1:
-    print("--Warning: There were " + str(origin_old) + " origin files that do not have the needed metadata and need to be updated.")
-    error_message +=1 # variable will increment if statement is true
-elif origin_old == 0:    
-    print("--Info: There were " + str(origin_old) + " origin files that do not have the needed metadata and need to be updated.")
-if bad_missing >= 1:
-    print("--Warning: There were " + str(bad_missing) + " folders missing an origin files that should have had them.")
-    error_message +=1 # variable will increment if statement is true
-elif bad_missing == 0:    
-    print("--Info: There were " + str(bad_missing) + " folders missing an origin files that should have had them.")
-if good_missing >= 1:
-    print("--Info: Some folders didn't have origin files and probably shouldn't have origin files. " + str(good_missing) + " of these folders were identified.")
-    error_message +=1 # variable will increment if statement is true
-elif good_missing == 0:    
-    print("--Info: Some folders didn't have origin files and probably shouldn't have origin files. " + str(good_missing) + " of these folders were identified.")
-if error_message >= 1:
-    print("Check the logs to see which folders had errors and what they were.")
-else:
-    print("There were no errors.")    
-
+# Run the summary text function to print messages and errors
+summary_text()
