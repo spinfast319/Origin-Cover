@@ -12,9 +12,7 @@
 # Import dependencies
 import os  # Imports functionality that let's you interact with your operating system
 import yaml  # Imports yaml
-import shutil # Imports functionality that lets you copy files and directory
 import datetime # Imports functionality that lets you make timestamps
-import subprocess  # Imports functionality that let's you run command line commands in a script
 import requests # Imports the ability to make web or api requests
 import re # Imports regex
 from random import randint # Imports functionality that lets you generate a random number
@@ -22,7 +20,7 @@ from time import sleep # Imports functionality that lets you pause your script f
 
 
 #  Set your directories here
-album_directory = "M:\PREP" # Which directory do you want to start with?
+album_directory = "M:\TEST" # Which directory do you want to start with?
 log_directory = "M:\Python Test Environment\Logs" # Which directory do you want the log in?
 
 # Set whether you are using nested folders or have all albums in one directory here
@@ -121,6 +119,11 @@ def summary_text():
         error_message +=1 # variable will increment if statement is true
     elif link_missing == 0:    
         print("--Info: There were " + str(link_missing) + " origin file missing a cover link to the album.")
+    if parse_error >= 1:
+        print("--Warning: There were " + str(parse_error) + " albums skipped due to not being able to open the yaml. Redownload the yaml file.")
+        error_message +=1 # variable will increment if statement is true
+    elif parse_error == 0:    
+        print("--Info: There were " + str(parse_error) + " albums skipped due to not being able to open the yaml.")
     if origin_old >= 1:
         print("--Warning: There were " + str(origin_old) + " origin files that do not have the needed metadata and need to be updated.")
         error_message +=1 # variable will increment if statement is true
@@ -137,7 +140,7 @@ def summary_text():
     elif good_missing == 0:    
         print("--Info: Some folders didn't have origin files and probably shouldn't have origin files. " + str(good_missing) + " of these folders were identified.")
     if error_message >= 1:
-        print("There were " + str(error_message) + " errors. Check the logs to see which folders had errors and what they were.")
+        print("Check the logs to see which folders had errors and what they were.")
     else:
         print("There were no errors.")    
 
@@ -172,7 +175,7 @@ def download_cover(directory):
             file_exists = os.path.exists('origin.yaml')
             #if origin file exists, load it, get url,  download and save cover
             if file_exists == True:
-                #open the yaml and turn the data into variables
+                #open the yaml 
                 try:
                     with open(directory + os.sep + 'origin.yaml',encoding='utf-8') as f:
                       data = yaml.load(f, Loader=yaml.FullLoader)
@@ -188,6 +191,7 @@ def download_cover(directory):
                 if 'Cover' in data.keys():
                     print("--You are using the correct version of gazelle-origin.")
                     
+                    # turn the data into variables
                     album_cover = data['Cover']
                     clean_directory = data['Directory']
                     f.close()
