@@ -41,6 +41,7 @@ link_missing = 0
 origin_old = 0
 error_message = 0
 parse_error = 0
+connection_error = 0
 
 # identifies location origin files are supposed to be
 path_segments = album_directory.split(os.sep)
@@ -97,6 +98,8 @@ def summary_text():
     global origin_old
     global error_message
     global parse_error
+    global connection_error
+    
     print("")
     print("...and beyond!")
     print("")
@@ -127,6 +130,11 @@ def summary_text():
         error_message +=1 # variable will increment if statement is true
     elif origin_old == 0:    
         print("--Info: There were " + str(origin_old) + " origin files that do not have the needed metadata and need to be updated.")
+    if connection_error >= 1:
+        print("--Warning: There were " + str(connection_error) + " issues with requesting the image fromt the host. Please try again later and verify it is still there.")
+        error_message +=1 # variable will increment if statement is true
+    elif connection_error == 0:    
+        print("--Info: There were " + str(connection_error) + " issues with requesting the image fromt the host.")
     if bad_missing >= 1:
         print("--Warning: There were " + str(bad_missing) + " folders missing an origin files that should have had them.")
         error_message +=1 # variable will increment if statement is true
@@ -152,6 +160,7 @@ def download_cover(directory):
         global link_missing
         global origin_old
         global origin_location
+        global connection_error
         global parse_error
         print ("\n")
         #check to see if folder has bad characters and skip if it does
@@ -239,70 +248,87 @@ def download_cover(directory):
                                     
                                 else:
                                     # check to see if the image exists
-                                    image_exists_stream = requests.get(album_cover, stream = True)
-                                    if image_exists_stream.status_code != 200:
-                                    
-                                        print('--Cover is no longer on the internet.')
-                                        print("--Logged missing cover, image is not on site.")
-                                        log_name = "cover_missing"
-                                        log_message = "cover is no longer on the internet"
-                                        log_outcomes(directory,log_name,log_message)
-                                        cover_missing +=1 # variable will increment every loop iteration
+                                    try:
+                                        image_exists_stream = requests.get(album_cover, stream = True)
+                                        if image_exists_stream.status_code != 200:
                                         
-                                    else:
-                                        cover_format = album_cover.split(".")
-                                        cover_format = cover_format[-1]
-                                        #check to make sure the url ends in an image format
-                                        if cover_format == "jpg" or cover_format == "jpeg" or cover_format == "png" or cover_format == "gif" or cover_format == "webp"  or cover_format == "JPG"  or cover_format == "JPEG":
-                                            print("--The cover is a " + cover_format + ".")
-                                        
-                                            # downloads cover as REDcover
-                                            redcover = requests.get(album_cover)
-                                            redcover_path = directory + os.sep + "REDcover." + cover_format
-                                          
-                                            #check to see if REDcover already exists
-                                            redcover_exists = os.path.exists(redcover_path)
-                                            if redcover_exists == True:
-                                                print("--There is already an image name REDcover.")
-                                            else:
-                                                file = open(redcover_path, "wb")
-                                                file.write(redcover.content)
-                                                file.close()                    
-                                                print("--Cover downloaded and saved as REDcover." + cover_format)
-                                                # Make sure an image was downloaded
-                                                mime = magic.Magic(mime=True)
-                                                the_mime_type = mime.from_file("REDcover." + cover_format)
-                                                the_mime_type = the_mime_type.split("/")
-                                                # this states whether it is an image
-                                                mime_type_first = the_mime_type[0]
-                                                print(mime_type_first)
-                                                if mime_type_first == "image":
-                                                    # rename REDcover to cover if there is no cover file already
-                                                    cover_exists_path = directory + os.sep + "cover." + cover_format
-                                                    cover_exists = os.path.exists(cover_exists_path)
-                                                    if cover_exists == True:
-                                                        print("--There is already a cover file.")
-                                                    else:
-                                                        os.rename(redcover_path, cover_exists_path)  
-                                                        print("--REDcover renamed to cover.")
-                                                    count +=1 # variable will increment every loop iteration
-                                                else:
-                                                    print("--REDcover is not an image. The cover is no longer on the internet.")
-                                                    #delete corrupt REDcover file
-                                                    os.remove("REDcover." + cover_format)
-                                                    print("--Logged missing cover, image is not on site.")
-                                                    log_name = "cover_missing"
-                                                    log_message = "cover is no longer on the internet"
-                                                    log_outcomes(directory,log_name,log_message)
-                                                    cover_missing +=1 # variable will increment every loop iteration
-                                        else:    
                                             print('--Cover is no longer on the internet.')
                                             print("--Logged missing cover, image is not on site.")
                                             log_name = "cover_missing"
                                             log_message = "cover is no longer on the internet"
                                             log_outcomes(directory,log_name,log_message)
                                             cover_missing +=1 # variable will increment every loop iteration
-                            
+                                            
+                                        else:
+                                            cover_format = album_cover.split(".")
+                                            cover_format = cover_format[-1]
+                                            #check to make sure the url ends in an image format
+                                            if cover_format == "jpg" or cover_format == "jpeg" or cover_format == "png" or cover_format == "gif" or cover_format == "webp"  or cover_format == "JPG"  or cover_format == "JPEG":
+                                                print("--The cover is a " + cover_format + ".")
+                                            
+                                                # downloads cover as REDcover
+                                                try:
+                                                    redcover = requests.get(album_cover)
+                                                    redcover_path = directory + os.sep + "REDcover." + cover_format
+                                                  
+                                                    #check to see if REDcover already exists
+                                                    redcover_exists = os.path.exists(redcover_path)
+                                                    if redcover_exists == True:
+                                                        print("--There is already an image name REDcover.")
+                                                    else:
+                                                        file = open(redcover_path, "wb")
+                                                        file.write(redcover.content)
+                                                        file.close()                    
+                                                        print("--Cover downloaded and saved as REDcover." + cover_format)
+                                                        # Make sure an image was downloaded
+                                                        mime = magic.Magic(mime=True)
+                                                        the_mime_type = mime.from_file("REDcover." + cover_format)
+                                                        the_mime_type = the_mime_type.split("/")
+                                                        # this states whether it is an image
+                                                        mime_type_first = the_mime_type[0]
+                                                        print(mime_type_first)
+                                                        if mime_type_first == "image":
+                                                            # rename REDcover to cover if there is no cover file already
+                                                            cover_exists_path = directory + os.sep + "cover." + cover_format
+                                                            cover_exists = os.path.exists(cover_exists_path)
+                                                            if cover_exists == True:
+                                                                print("--There is already a cover file.")
+                                                            else:
+                                                                os.rename(redcover_path, cover_exists_path)  
+                                                                print("--REDcover renamed to cover.")
+                                                            count +=1 # variable will increment every loop iteration
+                                                        else:
+                                                            print("--REDcover is not an image. The cover is no longer on the internet.")
+                                                            #delete corrupt REDcover file
+                                                            os.remove("REDcover." + cover_format)
+                                                            print("--Logged missing cover, image is not on site.")
+                                                            log_name = "cover_missing"
+                                                            log_message = "cover is no longer on the internet"
+                                                            log_outcomes(directory,log_name,log_message)
+                                                            cover_missing +=1 # variable will increment every loop iteration
+                                                except:
+                                                    print("The website with the cover is not responding. Try again later.")
+                                                    print("--Logged missing cover, image is not on site.")
+                                                    log_name = "connection_error"
+                                                    log_message = "had issues requesting the image fromt the host.  Please try again later and verify it is still there"
+                                                    log_outcomes(directory,log_name,log_message)
+                                                    connection_error +=1 # variable will increment every loop iteration
+                                                    return
+                                            else:    
+                                                print('--Cover is no longer on the internet.')
+                                                print("--Logged missing cover, image is not on site.")
+                                                log_name = "cover_missing"
+                                                log_message = "cover is no longer on the internet"
+                                                log_outcomes(directory,log_name,log_message)
+                                                cover_missing +=1 # variable will increment every loop iteration
+                                    except:
+                                        print("The website with the cover is not responding. Try again later.")
+                                        print("--Logged missing cover, image is not on site.")
+                                        log_name = "connection_error"
+                                        log_message = "had issues requesting the image fromt the host.  Please try again later and verify it is still there"
+                                        log_outcomes(directory,log_name,log_message)
+                                        connection_error +=1 # variable will increment every loop iteration
+                                        return
                     else:
                         print("--The is origin file is missing a cover link for the album.")
                         print("--Logged missing link.")
