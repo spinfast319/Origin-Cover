@@ -17,10 +17,11 @@ import requests # Imports the ability to make web or api requests
 import re # Imports regex
 from random import randint # Imports functionality that lets you generate a random number
 from time import sleep # Imports functionality that lets you pause your script for a set period of time
+import magic # Imports functionality to check mime type
 
 
 #  Set your directories here
-album_directory = "M:\TEST" # Which directory do you want to start with?
+album_directory = "M:\PREP" # Which directory do you want to start with?
 log_directory = "M:\Python Test Environment\Logs" # Which directory do you want the log in?
 
 # Set whether you are using nested folders or have all albums in one directory here
@@ -101,9 +102,6 @@ def summary_text():
     print("")
     print("This script downloaded " + str(count) + " album covers.")
     print("This script looks for potential missing files or errors. The following messages outline whether any were found.")
-    if parse_error >= 1:
-        print("--Warning: There were " + str(parse_error) + " errors parsing the yaml and the cover art could not be downloaded.")
-        error_message +=1 # variable will increment if statement is true
     if bad_folder_name >= 1:
         print("--Warning: There were " + str(bad_folder_name) + " folders with illegal characters.")
         error_message +=1 # variable will increment if statement is true
@@ -271,17 +269,32 @@ def download_cover(directory):
                                                 file.write(redcover.content)
                                                 file.close()                    
                                                 print("--Cover downloaded and saved as REDcover." + cover_format)
-                                                
-                                                # rename REDcover to cover if there is no cover file already
-                                                cover_exists_path = directory + os.sep + "cover." + cover_format
-                                                cover_exists = os.path.exists(cover_exists_path)
-                                                if cover_exists == True:
-                                                    print("--There is already a cover file.")
+                                                # Make sure an image was downloaded
+                                                mime = magic.Magic(mime=True)
+                                                the_mime_type = mime.from_file("REDcover." + cover_format)
+                                                the_mime_type = the_mime_type.split("/")
+                                                # this states whether it is an image
+                                                mime_type_first = the_mime_type[0]
+                                                print(mime_type_first)
+                                                if mime_type_first == "image":
+                                                    # rename REDcover to cover if there is no cover file already
+                                                    cover_exists_path = directory + os.sep + "cover." + cover_format
+                                                    cover_exists = os.path.exists(cover_exists_path)
+                                                    if cover_exists == True:
+                                                        print("--There is already a cover file.")
+                                                    else:
+                                                        os.rename(redcover_path, cover_exists_path)  
+                                                        print("--REDcover renamed to cover.")
+                                                    count +=1 # variable will increment every loop iteration
                                                 else:
-                                                    os.rename(redcover_path, cover_exists_path)  
-                                                    print("--REDcover renamed to cover.")
-                                                count +=1 # variable will increment every loop iteration
-                                            
+                                                    print("--REDcover is not an image. The cover is no longer on the internet.")
+                                                    #delete corrupt REDcover file
+                                                    os.remove("REDcover." + cover_format)
+                                                    print("--Logged missing cover, image is not on site.")
+                                                    log_name = "cover_missing"
+                                                    log_message = "cover is no longer on the internet"
+                                                    log_outcomes(directory,log_name,log_message)
+                                                    cover_missing +=1 # variable will increment every loop iteration
                                         else:    
                                             print('--Cover is no longer on the internet.')
                                             print("--Logged missing cover, image is not on site.")
