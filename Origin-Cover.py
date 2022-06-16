@@ -21,7 +21,7 @@ import magic # Imports functionality to check mime type
 
 
 #  Set your directories here
-album_directory = "M:\PREP" # Which directory do you want to start with?
+album_directory = "M:\CHECKNOW" # Which directory do you want to start with?
 log_directory = "M:\Python Test Environment\Logs" # Which directory do you want the log in?
 
 # Set whether you are using nested folders or have all albums in one directory here
@@ -263,7 +263,13 @@ def download_cover(directory):
                                             cover_format = album_cover.split(".")
                                             cover_format = cover_format[-1]
                                             #check to make sure the url ends in an image format
-                                            if cover_format == "jpg" or cover_format == "jpeg" or cover_format == "png" or cover_format == "gif" or cover_format == "webp"  or cover_format == "JPG"  or cover_format == "JPEG":
+                                            format_list = {"jpg", "jpeg", "png", "gif", "webp", "JPG", "JPEG"}
+                                            if cover_format in format_list:
+                                                good_cover = "yes"
+                                            else:
+                                                good_cover = "no"
+                                            #if cover == true
+                                            if good_cover == "yes":
                                                 print("--The cover is a " + cover_format + ".")
                                             
                                                 # downloads cover as REDcover
@@ -379,7 +385,7 @@ directories.remove(os.path.abspath(album_directory)) # If you don't want your ma
 for i in directories:
       os.chdir(i)         # Change working Directory
       download_cover(i)      # Run your function
-      delay = randint(1,3)  # Generate a random number of seconds
+      delay = randint(1,5)  # Generate a random number of seconds
       print("The script is pausing for " + str(delay) + " seconds.")
       sleep(delay) # Delay the script randomly to reduce anti-web scraping blocks 
 
