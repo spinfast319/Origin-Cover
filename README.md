@@ -3,7 +3,7 @@
 
 Many times when you download an album, the art is not included with the music files. Other times the art is there but small and the site has larger, higher quality art available as metadata. This script recursively looks through all the album folders in a directory for for folders with origin.yaml files.  When it finds an origin.yaml file it opens it and looks for a url to cover art. It then downloads the art as REDcover.jpg (or whatever type of image it is). If the album does not have a cover.jpg folder already, it will rename the image as cover.jpg.
 
-It has been tuned to not download "404" or "image missing" images and will log any albums it skips and explain why: image no longer on the interenet, site no longer exists, etc.
+It has been tuned to not download "404" or "image missing" images and will log any albums it skips and explain why. (ie. image no longer on the internet, site no longer exists, etc.)
 
 This project has a dependency on the gazelle-origin project created by x1ppy. gazelle-origin scrapes gazelle based sites and stores the related music metadata in a yaml file in the music albums folder. For this script to work you need to use a fork that has additional metadata including the cover art. The fork that has the most additional metadata right now is: https://github.com/spinfast319/gazelle-origin
 
