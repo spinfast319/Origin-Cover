@@ -25,8 +25,8 @@ import magic  # Imports functionality to check mime type
 
 
 #  Set your directories here
-album_directory = "M:\Music\Albums"  # Which directory do you want to start with?
-log_directory = "M:\Music\Logs"  # Which directory do you want the log in?
+album_directory = "M:\Python Test Environment\Albums"  # Which directory do you want to start with?
+log_directory = "M:\Python Test Environment\Logs"  # Which directory do you want the log in?
 
 # Set whether you are using nested folders or have all albums in one directory here
 # If you have all your ablums in one music directory Music/Album_name then set this value to 1
@@ -68,14 +68,7 @@ def log_outcomes(d, p, m):
     album_name = album_name[-1]
     log_path = log_directory + os.sep + log_name + ".txt"
     with open(log_path, "a", encoding="utf-8") as log_name:
-        log_name.write(
-            "--{:%b, %d %Y}".format(today)
-            + " at "
-            + "{:%H:%M:%S}".format(today)
-            + " from the "
-            + script_name
-            + ".\n"
-        )
+        log_name.write("--{:%b, %d %Y}".format(today) + " at " + "{:%H:%M:%S}".format(today) + " from the " + script_name + ".\n")
         log_name.write("The album folder " + album_name + " " + message + ".\n")
         log_name.write("Album location: " + directory + "\n")
         log_name.write(" \n")
@@ -118,113 +111,47 @@ def summary_text():
     print("...and beyond!")
     print("")
     print("This script downloaded " + str(count) + " album covers.")
-    print(
-        "This script looks for potential missing files or errors. The following messages outline whether any were found."
-    )
+    print("This script looks for potential missing files or errors. The following messages outline whether any were found.")
     if bad_folder_name >= 1:
-        print(
-            "--Warning: There were "
-            + str(bad_folder_name)
-            + " folders with illegal characters."
-        )
+        print("--Warning: There were " + str(bad_folder_name) + " folders with illegal characters.")
         error_message += 1  # variable will increment if statement is true
     elif bad_folder_name == 0:
-        print(
-            "--Info: There were "
-            + str(bad_folder_name)
-            + " folders with illegal characters."
-        )
+        print("--Info: There were " + str(bad_folder_name) + " folders with illegal characters.")
     if cover_missing >= 1:
-        print(
-            "--Warning: There were "
-            + str(cover_missing)
-            + " covers no longer on the internet."
-        )
+        print("--Warning: There were " + str(cover_missing) + " covers no longer on the internet.")
         error_message += 1  # variable will increment if statement is true
     elif cover_missing == 0:
-        print(
-            "--Info: There were "
-            + str(cover_missing)
-            + " covers no longer on the internet."
-        )
+        print("--Info: There were " + str(cover_missing) + " covers no longer on the internet.")
     if link_missing >= 1:
-        print(
-            "--Warning: There were "
-            + str(link_missing)
-            + " origin file missing a cover link to the album."
-        )
+        print("--Warning: There were " + str(link_missing) + " origin file missing a cover link to the album.")
         error_message += 1  # variable will increment if statement is true
     elif link_missing == 0:
-        print(
-            "--Info: There were "
-            + str(link_missing)
-            + " origin file missing a cover link to the album."
-        )
+        print("--Info: There were " + str(link_missing) + " origin file missing a cover link to the album.")
     if parse_error >= 1:
-        print(
-            "--Warning: There were "
-            + str(parse_error)
-            + " albums skipped due to not being able to open the yaml. Redownload the yaml file."
-        )
+        print("--Warning: There were " + str(parse_error) + " albums skipped due to not being able to open the yaml. Redownload the yaml file.")
         error_message += 1  # variable will increment if statement is true
     elif parse_error == 0:
-        print(
-            "--Info: There were "
-            + str(parse_error)
-            + " albums skipped due to not being able to open the yaml."
-        )
+        print("--Info: There were " + str(parse_error) + " albums skipped due to not being able to open the yaml.")
     if origin_old >= 1:
-        print(
-            "--Warning: There were "
-            + str(origin_old)
-            + " origin files that do not have the needed metadata and need to be updated."
-        )
+        print("--Warning: There were " + str(origin_old) + " origin files that do not have the needed metadata and need to be updated.")
         error_message += 1  # variable will increment if statement is true
     elif origin_old == 0:
-        print(
-            "--Info: There were "
-            + str(origin_old)
-            + " origin files that do not have the needed metadata and need to be updated."
-        )
+        print("--Info: There were " + str(origin_old) + " origin files that do not have the needed metadata and need to be updated.")
     if connection_error >= 1:
-        print(
-            "--Warning: There were "
-            + str(connection_error)
-            + " issues with requesting the image fromt the host. Please try again later and verify it is still there."
-        )
+        print("--Warning: There were " + str(connection_error) + " issues with requesting the image fromt the host. Please try again later and verify it is still there.")
         error_message += 1  # variable will increment if statement is true
     elif connection_error == 0:
-        print(
-            "--Info: There were "
-            + str(connection_error)
-            + " issues with requesting the image fromt the host."
-        )
+        print("--Info: There were " + str(connection_error) + " issues with requesting the image fromt the host.")
     if bad_missing >= 1:
-        print(
-            "--Warning: There were "
-            + str(bad_missing)
-            + " folders missing an origin files that should have had them."
-        )
+        print("--Warning: There were " + str(bad_missing) + " folders missing an origin files that should have had them.")
         error_message += 1  # variable will increment if statement is true
     elif bad_missing == 0:
-        print(
-            "--Info: There were "
-            + str(bad_missing)
-            + " folders missing an origin files that should have had them."
-        )
+        print("--Info: There were " + str(bad_missing) + " folders missing an origin files that should have had them.")
     if good_missing >= 1:
-        print(
-            "--Info: Some folders didn't have origin files and probably shouldn't have origin files. "
-            + str(good_missing)
-            + " of these folders were identified."
-        )
+        print("--Info: Some folders didn't have origin files and probably shouldn't have origin files. " + str(good_missing) + " of these folders were identified.")
         error_message += 1  # variable will increment if statement is true
     elif good_missing == 0:
-        print(
-            "--Info: Some folders didn't have origin files and probably shouldn't have origin files. "
-            + str(good_missing)
-            + " of these folders were identified."
-        )
+        print("--Info: Some folders didn't have origin files and probably shouldn't have origin files. " + str(good_missing) + " of these folders were identified.")
     if error_message >= 1:
         print("Check the logs to see which folders had errors and what they were.")
     else:
@@ -268,12 +195,8 @@ def download_cover(directory):
                 with open(directory + os.sep + "origin.yaml", encoding="utf-8") as f:
                     data = yaml.load(f, Loader=yaml.FullLoader)
             except:
-                print(
-                    "--There was an issue parsing the yaml file and the cover could not be downloaded."
-                )
-                print(
-                    "----Logged missing cover due to parse error. Redownload origin file."
-                )
+                print("--There was an issue parsing the yaml file and the cover could not be downloaded.")
+                print("----Logged missing cover due to parse error. Redownload origin file.")
                 log_name = "parse-error"
                 log_message = "had an error parsing the yaml and the cover art could not be downloaded. Redownload the origin file"
                 log_outcomes(directory, log_name, log_message)
@@ -301,9 +224,7 @@ def download_cover(directory):
                         log_name = "cover_missing"
                         log_message = "cover is no longer on the internet"
                         log_outcomes(directory, log_name, log_message)
-                        cover_missing += (
-                            1  # variable will increment every loop iteration
-                        )
+                        cover_missing += 1  # variable will increment every loop iteration
 
                     else:
                         # check to see if image still exsits on the site allowing imagur to have a 301 but others not
@@ -320,42 +241,29 @@ def download_cover(directory):
                             log_name = "cover_missing"
                             log_message = "cover is no longer on the internet"
                             log_outcomes(directory, log_name, log_message)
-                            cover_missing += (
-                                1  # variable will increment every loop iteration
-                            )
+                            cover_missing += 1  # variable will increment every loop iteration
 
                         else:
                             # check to see if link redirects to imgur 404 image
                             final_destination_url = final_destination(album_cover)
-                            if (
-                                final_destination_url
-                                == "https://i.imgur.com/removed.png"
-                            ):
+                            if final_destination_url == "https://i.imgur.com/removed.png":
                                 print("--Cover is no longer on the internet.")
                                 print("--Logged missing cover, image is not on site.")
                                 log_name = "cover_missing"
                                 log_message = "cover is no longer on the internet"
                                 log_outcomes(directory, log_name, log_message)
-                                cover_missing += (
-                                    1  # variable will increment every loop iteration
-                                )
+                                cover_missing += 1  # variable will increment every loop iteration
 
                             else:
                                 # check to see if the image exists
                                 try:
-                                    image_exists_stream = requests.get(
-                                        album_cover, stream=True
-                                    )
+                                    image_exists_stream = requests.get(album_cover, stream=True)
                                     if image_exists_stream.status_code != 200:
 
                                         print("--Cover is no longer on the internet.")
-                                        print(
-                                            "--Logged missing cover, image is not on site."
-                                        )
+                                        print("--Logged missing cover, image is not on site.")
                                         log_name = "cover_missing"
-                                        log_message = (
-                                            "cover is no longer on the internet"
-                                        )
+                                        log_message = "cover is no longer on the internet"
                                         log_outcomes(directory, log_name, log_message)
                                         cover_missing += 1  # variable will increment every loop iteration
 
@@ -378,82 +286,47 @@ def download_cover(directory):
                                             good_cover = "no"
                                         # if cover == true
                                         if good_cover == "yes":
-                                            print(
-                                                "--The cover is a " + cover_format + "."
-                                            )
+                                            print("--The cover is a " + cover_format + ".")
 
                                             # downloads cover as REDcover
                                             try:
                                                 redcover = requests.get(album_cover)
-                                                redcover_path = (
-                                                    directory
-                                                    + os.sep
-                                                    + "REDcover."
-                                                    + cover_format
-                                                )
+                                                redcover_path = directory + os.sep + "REDcover." + cover_format
 
                                                 # check to see if REDcover already exists
-                                                redcover_exists = os.path.exists(
-                                                    redcover_path
-                                                )
+                                                redcover_exists = os.path.exists(redcover_path)
                                                 if redcover_exists == True:
-                                                    print(
-                                                        "--There is already an image name REDcover."
-                                                    )
+                                                    print("--There is already an image name REDcover.")
                                                 else:
                                                     file = open(redcover_path, "wb")
                                                     file.write(redcover.content)
                                                     file.close()
-                                                    print(
-                                                        "--Cover downloaded and saved as REDcover."
-                                                        + cover_format
-                                                    )
+                                                    print("--Cover downloaded and saved as REDcover." + cover_format)
                                                     # Make sure an image was downloaded
                                                     mime = magic.Magic(mime=True)
-                                                    the_mime_type = mime.from_file(
-                                                        "REDcover." + cover_format
-                                                    )
-                                                    the_mime_type = the_mime_type.split(
-                                                        "/"
-                                                    )
+                                                    the_mime_type = mime.from_file("REDcover." + cover_format)
+                                                    the_mime_type = the_mime_type.split("/")
                                                     # this states whether it is an image
                                                     mime_type_first = the_mime_type[0]
                                                     print(mime_type_first)
                                                     if mime_type_first == "image":
                                                         # rename REDcover to cover if there is no cover file already
-                                                        cover_exists_path = (
-                                                            directory
-                                                            + os.sep
-                                                            + "cover."
-                                                            + cover_format
-                                                        )
-                                                        cover_exists = os.path.exists(
-                                                            cover_exists_path
-                                                        )
+                                                        cover_exists_path = directory + os.sep + "cover." + cover_format
+                                                        cover_exists = os.path.exists(cover_exists_path)
                                                         if cover_exists == True:
-                                                            print(
-                                                                "--There is already a cover file."
-                                                            )
+                                                            print("--There is already a cover file.")
                                                         else:
                                                             os.rename(
                                                                 redcover_path,
                                                                 cover_exists_path,
                                                             )
-                                                            print(
-                                                                "--REDcover renamed to cover."
-                                                            )
+                                                            print("--REDcover renamed to cover.")
                                                         count += 1  # variable will increment every loop iteration
                                                     else:
-                                                        print(
-                                                            "--REDcover is not an image. The cover is no longer on the internet."
-                                                        )
+                                                        print("--REDcover is not an image. The cover is no longer on the internet.")
                                                         # delete corrupt REDcover file
-                                                        os.remove(
-                                                            "REDcover." + cover_format
-                                                        )
-                                                        print(
-                                                            "--Logged missing cover, image is not on site."
-                                                        )
+                                                        os.remove("REDcover." + cover_format)
+                                                        print("--Logged missing cover, image is not on site.")
                                                         log_name = "cover_missing"
                                                         log_message = "cover is no longer on the internet"
                                                         log_outcomes(
@@ -463,41 +336,23 @@ def download_cover(directory):
                                                         )
                                                         cover_missing += 1  # variable will increment every loop iteration
                                             except:
-                                                print(
-                                                    "The website with the cover is not responding. Try again later."
-                                                )
-                                                print(
-                                                    "--Logged missing cover, image is not on site."
-                                                )
+                                                print("The website with the cover is not responding. Try again later.")
+                                                print("--Logged missing cover, image is not on site.")
                                                 log_name = "connection_error"
                                                 log_message = "had issues requesting the image fromt the host.  Please try again later and verify it is still there"
-                                                log_outcomes(
-                                                    directory, log_name, log_message
-                                                )
+                                                log_outcomes(directory, log_name, log_message)
                                                 connection_error += 1  # variable will increment every loop iteration
                                                 return
                                         else:
-                                            print(
-                                                "--Cover is no longer on the internet."
-                                            )
-                                            print(
-                                                "--Logged missing cover, image is not on site."
-                                            )
+                                            print("--Cover is no longer on the internet.")
+                                            print("--Logged missing cover, image is not on site.")
                                             log_name = "cover_missing"
-                                            log_message = (
-                                                "cover is no longer on the internet"
-                                            )
-                                            log_outcomes(
-                                                directory, log_name, log_message
-                                            )
+                                            log_message = "cover is no longer on the internet"
+                                            log_outcomes(directory, log_name, log_message)
                                             cover_missing += 1  # variable will increment every loop iteration
                                 except:
-                                    print(
-                                        "The website with the cover is not responding. Try again later."
-                                    )
-                                    print(
-                                        "--Logged missing cover, image is not on site."
-                                    )
+                                    print("The website with the cover is not responding. Try again later.")
+                                    print("--Logged missing cover, image is not on site.")
                                     log_name = "connection_error"
                                     log_message = "had issues requesting the image fromt the host.  Please try again later and verify it is still there"
                                     log_outcomes(directory, log_name, log_message)
@@ -513,12 +368,8 @@ def download_cover(directory):
 
             else:
                 print("--You need to update your origin files with more metadata.")
-                print(
-                    "--Switch to the gazelle-origin fork here: https://github.com/spinfast319/gazelle-origin"
-                )
-                print(
-                    "--Then run: https://github.com/spinfast319/Update-Gazelle-Origin-Files"
-                )
+                print("--Switch to the gazelle-origin fork here: https://github.com/spinfast319/gazelle-origin")
+                print("--Then run: https://github.com/spinfast319/Update-Gazelle-Origin-Files")
                 print("--Then try this script again.")
                 print("--Logged out of date origin file.")
                 log_name = "out-of-date-origin"
@@ -534,9 +385,7 @@ def download_cover(directory):
             # create different log files depending on whether the origin file is missing somewhere it shouldn't be
             if origin_location != current_segments:
                 # log the missing origin file folders that are likely supposed to be missing
-                print(
-                    "--An origin file is missing from a folder that should not have one."
-                )
+                print("--An origin file is missing from a folder that should not have one.")
                 print("--Logged missing origin file.")
                 log_name = "good-missing-origin"
                 log_message = "origin file is missing from a folder that should not have one.\nSince it shouldn't be there it is probably fine but you can double check"
@@ -547,18 +396,14 @@ def download_cover(directory):
                 print("--An origin file is missing from a folder that should have one.")
                 print("--Logged missing origin file.")
                 log_name = "bad-missing-origin"
-                log_message = (
-                    "origin file is missing from a folder that should have one"
-                )
+                log_message = "origin file is missing from a folder that should have one"
                 log_outcomes(directory, log_name, log_message)
                 bad_missing += 1  # variable will increment every loop iteration
 
 
 # Get all the subdirectories of album_directory recursively and store them in a list:
 directories = [os.path.abspath(x[0]) for x in os.walk(album_directory)]
-directories.remove(
-    os.path.abspath(album_directory)
-)  # If you don't want your main directory included
+directories.remove(os.path.abspath(album_directory))  # If you don't want your main directory included
 
 # Run a loop that goes into each directory identified and downloads the cover from the Gazelle site
 for i in directories:
