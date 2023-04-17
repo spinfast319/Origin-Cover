@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # Download RED Cover with Origin File
 # author: hypermodified
 # This script uses an exisiting yaml origin file to get the URL for the cover and then download it.
