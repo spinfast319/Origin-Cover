@@ -310,7 +310,7 @@ def download_cover(directory):
                                                     the_mime_type = the_mime_type.split("/")
                                                     # this states whether it is an image
                                                     mime_type_first = the_mime_type[0]
-                                                    print(mime_type_first)
+                                                    #print(mime_type_first)
                                                     if mime_type_first == "image":
                                                         # rename REDcover to cover if there is no cover file already
                                                         cover_exists_path = directory + os.sep + "cover." + cover_format
