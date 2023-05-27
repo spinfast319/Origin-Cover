@@ -25,6 +25,8 @@ from time import (
 )  # Imports functionality that lets you pause your script for a set period of time
 import magic  # Imports functionality to check mime type
 
+import origin_script_library as osl  # Imports common code used across all origin scripts
+
 
 #  Set your directories here
 album_directory = "M:\PROCESS"  # Which directory do you want to start with?
@@ -403,9 +405,8 @@ def download_cover(directory):
                 bad_missing += 1  # variable will increment every loop iteration
 
 
-# Get all the subdirectories of album_directory recursively and store them in a list:
-directories = [os.path.abspath(x[0]) for x in os.walk(album_directory)]
-directories.remove(os.path.abspath(album_directory))  # If you don't want your main directory included
+# Get all the subdirectories of album_directory recursively and store them in a list
+directories = osl.set_directory(album_directory)
 
 # Run a loop that goes into each directory identified and downloads the cover from the Gazelle site
 for i in directories:
